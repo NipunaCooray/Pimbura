@@ -65,24 +65,32 @@ cv2.waitKey(0)
 cv2.destroyAllWindows()
 
 errArr =  []
-# Calculate the maximum value
 maxErr = 1e-5
-#errArr = 0
-#errArr = np.matrix('',float)
 
 for k in range(startVal,endValMid+1):
     tempc  = rawData[:,k]
-    temp_baseTem = tempc - baseTemplate
-    temp_baseTem_sq = np.power(temp_baseTem,2)
-#    print sum(temp_baseTem_sq)
-#    errArr[2] = sum(temp_baseTem_sq)
-#    errArr2
-    print sum(np.power((tempc - baseTemplate),2))
 #    errArr[k-startVal] = sum(np.power((tempc - baseTemplate),2))
     errArr.append(sum(np.power((tempc - baseTemplate),2)))
-#    print(tempc)
-
+#    errArr = np.array(errArr)
+#    if errArr[k-startVal] > maxErr:
+#        maxErr = errArr[k-startVal]
+    
+    
 errArr = np.array(errArr)
+
+for k in range(startVal,endValMid+1):
+    if errArr[k-startVal] > maxErr:
+        maxErr = errArr[k-startVal]
+
+       
+# set of peaks, initialisation : main components
+lastPos = 0
+lastMag = 1e-5
+countMax = 0
+#maxArray = zeros(100,2) # % (position, value)
+
+
+
 
 
     
