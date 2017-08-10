@@ -1,4 +1,6 @@
 import numpy as np
+#import scipy as sp
+from scipy import signal
 import cv2
 
 # Load an color image in grayscale
@@ -6,8 +8,10 @@ import cv2
 
 print(cv2. __version__)
 
-stratVal = 9
-endValMid = 307
+startVal = 9            #for MatLab
+startVal = startVal-1   #for python
+endValMid = 307         #for Matlab
+endValMid = endValMid-1 #for python
 
 img = cv2.imread('C:\Users\BuddhiniP\Dropbox\MATLAB\Elastic\images\Capture.png',1)
 
@@ -22,6 +26,9 @@ gradThld = 1e3    #% Grad Threshold value for selection of valleys
 wrdGap = 10      # % num of pixels between words. Seeting a very low values will pick gaps between letters. too high and gaps between words will be missed-> 10
 rThreshold = 0.80   #% Threshold Pearsons'Corr Coeff [r] value of matching
 fwinLen = 5        #% Median filter window length
+errArr=0
+errArr = np.array(errArr)
+errArr.astype(float)
 
 #print(gradThld)
 
@@ -30,6 +37,40 @@ highest = -1e-5
 
 for tempk in range(3):
     temp = img[:,:,tempk]
-    np.st
-    print(tempk)
+    temp = np.std(temp)
+    print(temp)
+    
+    if temp > highest:
+        highest = temp
+        colourInd = tempk
+
+
+rawData = img[:,:,colourInd]
+
+(p,q) = rawData.shape
+
+
+# median filter to reduce noise
+K = signal.medfilt2d(rawData,fwinLen)
+K = np.array(K)
+rawData = K.astype(float)
+
+baseTemplate = rawData[:,startVal]
+
+cv2.imshow('image',K)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+
+# Calculate the maximum value
+maxErr = 1e-5
+for k in range(startVal,endValMid+1):
+    tempc  = rawData[:,k]
+    errArr[k-startVal+1] = sum(np.power((tempc - baseTemplate),2))
+#    print(tempc)
+
+
+
+
+    
     
