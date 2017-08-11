@@ -13,7 +13,7 @@ startVal = startVal-1   #for python
 endValMid = 307         #for Matlab
 endValMid = endValMid-1 #for python
 
-img = cv2.imread('C:\Users\BuddhiniP\Dropbox\MATLAB\Elastic\images\Capture.png',1)
+img = cv2.imread('C:/My Documents/Work/Elastic cutting/trunk/1.PNG',1)
 
 cv2.imshow('image',img)
 cv2.waitKey(0)
