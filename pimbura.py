@@ -2,6 +2,7 @@ import numpy as np
 #import scipy as sp
 from scipy import signal
 import cv2
+import matplotlib.pyplot as plt
 
 # Load an color image in grayscale
 #img = cv2.imread('messi5.jpg',0)
@@ -64,34 +65,114 @@ cv2.imshow('image',K)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 
-errArr =  []
+errArr =  []    #create a list
 maxErr = 1e-5
 
 for k in range(startVal,endValMid+1):
     tempc  = rawData[:,k]
 #    errArr[k-startVal] = sum(np.power((tempc - baseTemplate),2))
-    errArr.append(sum(np.power((tempc - baseTemplate),2)))
-#    errArr = np.array(errArr)
-#    if errArr[k-startVal] > maxErr:
-#        maxErr = errArr[k-startVal]
+    errArr.append(sum(np.power((tempc - baseTemplate),2))) # assign values one after another
+    l = len(errArr) #length of list
     
-    
-errArr = np.array(errArr)
-
-for k in range(startVal,endValMid+1):
     if errArr[k-startVal] > maxErr:
+#        print (errArr[k-startVal])
         maxErr = errArr[k-startVal]
-
+      
+errArr = np.array(errArr)   #convert list to an array
        
+# Havent done the plotting
+
 # set of peaks, initialisation : main components
 lastPos = 0
 lastMag = 1e-5
 countMax = 0
-#maxArray = zeros(100,2) # % (position, value)
+maxArray = np.zeros((100,2)) #  (position, value)
 
+for k in range(1,len(errArr)-1):
+    # peaks search  
+    if errArr[k] > (maxFactor*maxErr):
+                
+        if (errArr[k] > errArr[k-1]) and (errArr[k] > errArr[k+1]): #   check Maximums 
+            
+            if ((errArr[k]-errArr[k-2])*(errArr[k+2]-errArr[k])) <=0:   # eliminate local maximuma from the maximum identified                                
+                if k - lastPos > clustLen:                                      
+                    
+                    lastPos = k
+                    lastMag = errArr[k]
+                    maxArray[countMax,0] = lastPos+1    # +1 for python since indexing difference
+                    maxArray[countMax,1] = lastMag
+                    countMax = countMax + 1
+                    
+                elif errArr[k] >= lastMag:
+                     # Could not test this expression no values passed
+                     lastMag = errArr[k];
+                     lastPos = k;
+                     maxArray[countMax,0] = lastPos+1;
+                     maxArray[countMax,1] = lastMag;
+                     
+# set of valleys initialisation : main components
+minErr = errArr[endValMid - startVal]
+minArray = np.zeros((100,2)) # start and end of words in 2 columnss
+flag = 0
+countMin = 0
+status = 0    
 
+for k in range(2,len(errArr)-1):    
+    #   Valleys search
+    if errArr[k] < minErr*minFactor:
+        
+        if flag == 0:      # encountering a new valley or interesting area for the fist time
+            flag = 1
+            gradVal =  (errArr[k + 1] - errArr[k - 1])/2    #put  gradVal(k)
+            
+            if np.abs(gradVal) < gradThld:  #thershold value for gradient
+                status = 1  #within the background region and about to enter a letter
+                
+            else:
+                if gradVal < 0:
+                    status = 1
+                    minArray[countMin,1] = k+1
+                    countMin = countMin + 1
+                
+                else :
+                    status = 1  #entering a letter
+                
+        else:
+            gradVal =  (errArr[k  +1] - errArr[k  -1])/2
+            
+            if status == 1: #store values
+                if np.abs(gradVal) < gradThld:
+                    minArray[countMin,0] = k + 1    #+1 is added to stick to letter
 
-
-
+            else:
+                print ("something is not right")
     
+    else:
+        if (countMin > 1) and (minArray[countMin,0] - minArray[countMin-1,1] < wrdGap):
+            print(countMin)
+            if flag ==1:
+                countMin = countMin -1
+                
+                flag = 0
+            else:
+                pause ###########################
+
+        else:
+            if flag == 1:
+                flag = 0
+                
+                
+############## stopped due to further modifications in the algorithm
+
+                
+                
+        
+            
+            
     
+                    
+                    
+                
+
+            
+        
